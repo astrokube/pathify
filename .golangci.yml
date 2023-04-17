@@ -74,7 +74,7 @@ linters-settings:
     for-loops: false # Report preallocation suggestions on for loops, false by default
   wrapcheck:
     ignorePackageGlobs:
-      - github.com/{{.repository.owner}}/{{.repository.name}}/*
+      - github.com/astrokube/pathify/*
 issues:
   exclude:
     - "not declared by package utf8"

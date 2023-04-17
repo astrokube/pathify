@@ -67,5 +67,5 @@ body:
     attributes:
       label: "🏢 Have you read the Code of Conduct?"
       options:
-        - label: "I have read the [Code of Conduct](https://github.com/{{.repository.owner}}/{{.repository.name}}/blob/main/CODE_OF_CONDUCT.md)"
+        - label: "I have read the [Code of Conduct](https://github.com/astrokube/pathify/blob/main/CODE_OF_CONDUCT.md)"
           required: true

@@ -1,4 +1,4 @@
-module github.com/{{.repository.owner}}/{{.repository.name}}
+module github.com/astrokube/pathify
 
 go 1.20
 

@@ -1,4 +1,4 @@
-PROJECT_NAME := github.com/{{.repository.owner}}/{{.repository.name}}"
+PROJECT_NAME := github.com/astrokube/pathify
 GO_VERSION := $(shell cat .go-version)
 GO  = GOFLAGS=-mod=readonly go
 GO_CMD          ?= go
