@@ -10,7 +10,7 @@ const (
 	array
 )
 
-var pathRegExp = regexp.MustCompile(`^(?P<parent>([A-Za-z_]+[A-Za-z0-9_]*(\[([0-9]+|\*)\])*\.)*)(?P<attribute>[A-Za-z_]+[A-Za-z0-9_]*)(\[(?P<index>([0-9]+|\*))\])*$`)
+var pathRegExp = regexp.MustCompile(`^(?P<parent>([A-Za-z_]+[A-Za-z0-9_-]*(\[([0-9]+|\*)\])*\.)*)(?P<attribute>[A-Za-z_]+[A-Za-z0-9_-]*)(\[(?P<index>([0-9]+|\*))\])*$`)
 
 type kind int
 
