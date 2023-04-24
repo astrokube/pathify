@@ -12,28 +12,22 @@ func complexMapStructure() map[string]interface{} {
 		Set("firstname", "John").
 		Set("lastname", "Doe").Map()
 
-	david := pathify.New().
-		Set("firstnmae", "David").Map()
+	wendy := pathify.New().
+		Set("firstname", "Wendy").Map()
 
 	return pathify.New().
 		Set("salary", 120).
 		Set("dad", john).
 		Set("mom.firstname", "Jane").
 		Set("mom.lastName", "Dane").
-		Set("children", []map[string]interface{}{}).
-		Set("children[0]", david).
+		Set("children[0].firstname", "David").
 		Set("children[0].age", 20).
+		Set("children[0].tutor", wendy).
 		Map()
-
 }
 
 func main() {
-	//out:=complexMapStructure()
-	out := pathify.New().
-		Set("group.members[0].skills.speed", 50).
-		Set("group.members[1].skills.strength", 20).
-		Fill().
-		Map()
+	out := complexMapStructure()
 
 	b, err := json.MarshalIndent(out, " ", "  ")
 	if err != nil {

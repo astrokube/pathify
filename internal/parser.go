@@ -33,7 +33,7 @@ func parsePath(path string, value any) []node {
 	parent := subMatchMap["parent"]
 	attr := subMatchMap["attribute"]
 	index := subMatchMap["index"]
-	var out = []node{{
+	out := []node{{
 		path: fmt.Sprintf("%s.%s", parent, attribute),
 		name: attr,
 		kind: attribute,

@@ -19,7 +19,6 @@ func (r Root) Get() map[string]any {
 		} else {
 			out[v.name] = Root(v.children).Get()
 		}
-
 	}
 	return out
 }
