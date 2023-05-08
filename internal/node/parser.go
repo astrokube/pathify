@@ -26,7 +26,7 @@ func pathToNode(exp string, value any) partial {
 	parent := subMatchMap["parent"]
 	attr := subMatchMap["attribute"]
 	index := subMatchMap["index"]
-	var path = attr
+	path := attr
 	if parent != "" {
 		parent = parent[:len(parent)-1]
 		path = fmt.Sprintf("%s.%s", parent, attr)
@@ -42,7 +42,7 @@ func pathToNode(exp string, value any) partial {
 	if index != "" {
 
 		n.path = fmt.Sprintf("%s[%v]", n.path, index)
-		var parentPath = attr
+		parentPath := attr
 		if parent != "" {
 			parentPath = parent + "." + parentPath
 		}

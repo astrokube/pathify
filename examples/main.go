@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/astrokube/pathify"
 )
 
-func complexMapStructure() map[string]interface{} {
-
+func buildNode() pathify.Node {
 	john := pathify.New().
 		Set("firstname", "John").
 		Set("lastname", "Doe").Map()
@@ -23,8 +23,15 @@ func complexMapStructure() map[string]interface{} {
 		Set("mom.lastName", "Dane").
 		Set("children[0].firstname", "David").
 		Set("children[0].age", 20).
-		Set("children[0].tutor", wendy).
-		Map()
+		Set("children[0].tutor", wendy)
+}
+
+func complexMapStructure() map[string]interface{} {
+	return buildNode().Map()
+}
+
+func prettyPrint() {
+	fmt.Println(buildNode().PrettyPrint())
 }
 
 func main() {
@@ -36,4 +43,5 @@ func main() {
 		os.Exit(1)
 	}
 	println(string(b))
+	prettyPrint()
 }

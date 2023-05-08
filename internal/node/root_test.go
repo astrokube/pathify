@@ -14,12 +14,34 @@ func TestRoot_Add(t *testing.T) {
 		name string
 		r    Root
 		args args
+		want Root
 	}{
-		// TODO: Add test cases.
+		{
+			name: "root is empty and add the first entry",
+			r:    map[string]*Node{},
+			args: args{
+				path:  "firstname",
+				value: "Ada",
+			},
+			want: map[string]*Node{
+				"firstname": {
+					attributes: attributes{
+						path:  "firstname",
+						name:  "firstname",
+						value: "Ada",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.r.Add(tt.args.path, tt.args.value)
+			for k, v := range tt.r {
+				if !v.EqualTo(tt.want[k]) {
+					t.Errorf("\n got = %s\nwant = %s", v.Tree(), tt.want[k].Tree())
+				}
+			}
 		})
 	}
 }

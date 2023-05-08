@@ -4,6 +4,14 @@ import "strconv"
 
 type Root map[string]*Node
 
+func (r Root) PrettyPrint() string {
+	out := ""
+	for _, node := range r {
+		out += node.Tree() + "\n"
+	}
+	return out
+}
+
 func (r Root) Add(path string, value any) {
 	partialNode := pathToNode(path, value)
 	r.merge(partialNode)
@@ -59,7 +67,6 @@ func (r Root) AsMap() map[string]any {
 		} else {
 			out[v.name] = v.children.AsMap()
 		}
-
 	}
 	return out
 }

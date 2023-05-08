@@ -7,6 +7,7 @@ import (
 type Node interface {
 	Set(path string, value any) Node
 	Map() map[string]any
+	PrettyPrint() string
 }
 
 type processor struct {
@@ -26,4 +27,8 @@ func (p *processor) Set(path string, value any) Node {
 
 func (p *processor) Map() map[string]any {
 	return p.root.AsMap()
+}
+
+func (p *processor) PrettyPrint() string {
+	return p.root.PrettyPrint()
 }
