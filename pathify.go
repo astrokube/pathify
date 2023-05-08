@@ -1,7 +1,7 @@
 package pathify
 
 import (
-	"github.com/astrokube/pathify/internal"
+	"github.com/astrokube/pathify/internal/node"
 )
 
 type Node interface {
@@ -10,20 +10,20 @@ type Node interface {
 }
 
 type processor struct {
-	root internal.Root
+	root node.Root
 }
 
 func New() Node {
 	return &processor{
-		root: internal.Root{},
+		root: node.Root{},
 	}
 }
 
 func (p *processor) Set(path string, value any) Node {
-	p.root.Append(path, value)
+	p.root.Add(path, value)
 	return p
 }
 
 func (p *processor) Map() map[string]any {
-	return p.root.Get()
+	return p.root.AsMap()
 }

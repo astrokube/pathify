@@ -8,6 +8,7 @@ import (
 )
 
 func complexMapStructure() map[string]interface{} {
+
 	john := pathify.New().
 		Set("firstname", "John").
 		Set("lastname", "Doe").Map()
