@@ -36,7 +36,6 @@ func (n *Node) EqualTo(other *Node) bool {
 		}
 	}
 	return true
-
 }
 
 func (n *Node) Tree() string {
