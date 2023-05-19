@@ -18,13 +18,13 @@ This module is still `in active development` and the API is still subject to bre
 Use go get to retrieve the library to add it to your GOPATH workspace, or project's Go module dependencies.
 
 ```bash
-go get -u github.com/astrokube/pathify
+go get -u github.com/astrokube/pathifyv2
 ```
 
 To update the library use go get -u to retrieve the latest version of it.
 
 ```bash
-go get -u github.com/astrokube/pathify
+go get -u github.com/astrokube/pathifyv2
 ```
 
 You could specify a concrete version of this module as It's shown on the below. Replace x.y.z by the desired version.
@@ -32,7 +32,7 @@ You could specify a concrete version of this module as It's shown on the below. 
 ```bash
 module github.com/<org>/<repository>
 require ( 
-  github.com/astrokube/pathify vX.Y.Z
+  github.com/astrokube/pathifyv2 vX.Y.Z
 )
 ```
 

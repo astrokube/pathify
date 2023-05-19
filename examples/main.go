@@ -1,47 +1,49 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-	"os"
+import "encoding/json"
 
-	"github.com/astrokube/pathify"
-)
+/*
+*
 
-func buildNode() pathify.Node {
-	john := pathify.New().
-		Set("firstname", "John").
-		Set("lastname", "Doe").Map()
+	func buildNode() pathifyv2.Node[map[string]any] {
+		john := pathifyv2.New().
+			SetValue("firstname", "John").
+			SetValue("lastname", "Doe").Out()
 
-	wendy := pathify.New().
-		Set("firstname", "Wendy").Map()
+		wendy := pathifyv2.New().
+			SetValue("firstname", "Wendy").Out()
 
-	return pathify.New().
-		Set("salary", 120).
-		Set("dad", john).
-		Set("mom.firstname", "Jane").
-		Set("mom.lastName", "Dane").
-		Set("children[0].firstname", "David").
-		Set("children[0].age", 20).
-		Set("children[0].tutor", wendy)
-}
+		return pathifyv2.New().
+			SetValue("salary", 120).
+			SetValue("dad", john).
+			SetValue("mom.firstname", "Jane").
+			SetValue("mom.lastName", "Dane").
+			SetValue("children[0].firstname", "David").
+			SetValue("children[0].age", 20).
+			SetValue("children[0].tutor", wendy)
+	}
 
-func complexMapStructure() map[string]interface{} {
-	return buildNode().Map()
-}
-
-func prettyPrint() {
-	fmt.Println(buildNode().PrettyPrint())
-}
-
+*
+*/
 func main() {
+	/**
 	out := complexMapStructure()
 
 	b, err := json.MarshalIndent(out, " ", "  ")
 	if err != nil {
 		println(err.Error())
-		os.Exit(1)
+		//os.Exit(1)
 	}
 	println(string(b))
 	prettyPrint()
+	println("------------ Pathify Load ------------")
+	**/
+	//exampleLoad()
+	printJSON(loadArray())
+	// printJSON(loadMap())
+}
+
+func printJSON(content any) {
+	b, _ := json.Marshal(content)
+	println(string(b))
 }

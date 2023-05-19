@@ -1,34 +1,13 @@
 package pathify
 
 import (
-	"github.com/astrokube/pathify/internal/node"
+	"github.com/astrokube/pathify/pathify"
 )
 
-type Node interface {
-	Set(path string, value any) Node
-	Map() map[string]any
-	PrettyPrint() string
+func Load[S pathify.Type](content S, opts ...pathify.PathifyOpt) pathify.Pathifier[S] {
+	return pathify.Load[S](content, opts...)
 }
 
-type processor struct {
-	root node.Root
-}
-
-func New() Node {
-	return &processor{
-		root: node.Root{},
-	}
-}
-
-func (p *processor) Set(path string, value any) Node {
-	p.root.Add(path, value)
-	return p
-}
-
-func (p *processor) Map() map[string]any {
-	return p.root.AsMap()
-}
-
-func (p *processor) PrettyPrint() string {
-	return p.root.PrettyPrint()
+func New(opts ...pathify.PathifyOpt) pathify.Pathifier[map[string]any] {
+	return pathify.New(opts...)
 }
