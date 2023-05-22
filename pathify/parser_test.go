@@ -1,9 +1,10 @@
 package pathify
 
 import (
-	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_parser_parse(t *testing.T) {
@@ -109,6 +110,68 @@ func Test_parser_parse(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "single array",
+			fields: fields{
+				strict: true,
+				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+			},
+			args: args{
+				pathExpr: "[2]",
+			},
+			want: &mutator{
+				kind: array,
+				child: &mutator{
+					index: "2",
+				},
+			},
+		},
+		{
+			name: "Attributes contains dots ",
+			fields: fields{
+				strict: false,
+				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+			},
+			args: args{
+				pathExpr: "annotations.\"a.b.c\"",
+			},
+			want: &mutator{
+				name: "annotations",
+				kind: node,
+				child: &mutator{
+					name: "a.b.c",
+				},
+			},
+		},
+		{
+			name: "Attributes in the middle of a path contains dots ",
+			fields: fields{
+				strict: false,
+				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+			},
+			args: args{
+				pathExpr: "annotations.\"a.b.c\".value[0].name",
+			},
+			want: &mutator{
+				name: "annotations",
+				kind: node,
+				child: &mutator{
+					name: "a.b.c",
+					kind: node,
+					child: &mutator{
+						name: "value",
+						kind: array,
+						child: &mutator{
+							index: "0",
+							kind:  node,
+							child: &mutator{
+								name: "name",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -116,13 +179,14 @@ func Test_parser_parse(t *testing.T) {
 				regExp: tt.fields.regExp,
 				strict: tt.fields.strict,
 			}
+			println(tt.fields.regExp.String())
+			println(tt.args.pathExpr)
 			if tt.panicked {
 				assert.Panics(t, func() { p.parse(tt.args.pathExpr) }, "The execution should end panicking")
 			} else {
 				res := p.parse(tt.args.pathExpr)
 				assertParsedElements(t, tt.want, res)
 			}
-
 		})
 	}
 }

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	defAttributeNameFormat = `(\"[A-Za-z_]+[A-Za-z0-9_./-]*\"|[A-Za-z_]+[A-Za-z0-9_/-]*)`
+	defAttributeNameFormat = `("[A-Za-z_]+[A-Za-z0-9_./-]*"|[A-Za-z_]+[A-Za-z0-9_/-]*)`
 	arrayIndexExprStr      = `([0-9]+|\*)`
 )
 
@@ -18,7 +18,7 @@ type parser struct {
 }
 
 func regExpFromAttributeFormat(attributeFormat string) *regexp.Regexp {
-	regExpStr := fmt.Sprintf(`^(?P<parent>((%s|\[%s\]))*)((\.)(?P<attribute>%s)|(\[(?P<index>%s)\]))$`, attributeFormat, arrayIndexExprStr, attributeFormat, arrayIndexExprStr)
+	regExpStr := fmt.Sprintf(`^(?P<parent>(((\.)?%s|\[%s\]))*)((\.)(?P<attribute>%s)|(\[(?P<index>%s)\]))$`, attributeFormat, arrayIndexExprStr, attributeFormat, arrayIndexExprStr)
 	return regexp.MustCompile(regExpStr)
 }
 
@@ -51,7 +51,7 @@ func (p *parser) parse(pathExpr string) *mutator {
 	}
 	if arrayIndex != "" {
 		m.index = arrayIndex
-		var parent = &mutator{}
+		parent := &mutator{}
 		if parentExpr != "" {
 			parent = p.parse(parentExpr)
 			if parent == nil {
@@ -71,6 +71,11 @@ func (p *parser) parse(pathExpr string) *mutator {
 			}
 		}
 		parent := p.parse(parentExpr)
+		if parent == nil {
+			parent = &mutator{
+				name: parentExpr,
+			}
+		}
 		parent.addToBottom(m)
 		return parent
 	}
