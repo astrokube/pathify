@@ -1,6 +1,9 @@
 package pathify
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type kind int32
 
@@ -9,12 +12,31 @@ const (
 	array
 )
 
+func (k kind) String() string {
+	if k == node {
+		return "node"
+	}
+	return "array"
+}
+
 type mutator struct {
 	name  string
 	index string
 	child *mutator
 	kind  kind
 	value any
+}
+
+func (m *mutator) String() string {
+	return m.pretty("")
+}
+
+func (m *mutator) pretty(prefix string) string {
+	out := fmt.Sprintf("name: %s index: %s kind: %v value: %v", m.name, m.index, m.kind, m.value)
+	if m.child != nil {
+		return fmt.Sprintf("%s \n%s %s ", out, prefix, m.child.pretty(prefix+"\t"))
+	}
+	return out
 }
 
 func (m *mutator) withValue(value any) {
@@ -42,7 +64,7 @@ func (m *mutator) toMap(content map[string]any) map[string]any {
 		return content
 	}
 	mt := *m.child
-	switch mt.kind {
+	switch m.kind {
 	case node:
 		var childContent map[string]any
 		c := content[m.name]
@@ -51,8 +73,8 @@ func (m *mutator) toMap(content map[string]any) map[string]any {
 		} else {
 			childContent, _ = c.(map[string]any)
 		}
-		childContent[mt.name] = mt.toMap(childContent)
-		content[m.name] = childContent[mt.name]
+		mt.toMap(childContent)
+		content[m.name] = childContent
 	case array:
 		var childContent []any
 		c := content[m.name]

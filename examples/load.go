@@ -39,4 +39,5 @@ func loadMap() any {
 		"age":       29,
 	}).Set(
 		"lastname", "Moe").Out()
+
 }

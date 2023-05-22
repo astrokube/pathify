@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 )
 
 const (
-	defAttributeNameFormat = `[A-Za-z_]+[A-Za-z0-9_./-]*`
+	defAttributeNameFormat = `(\"[A-Za-z_]+[A-Za-z0-9_./-]*\"|[A-Za-z_]+[A-Za-z0-9_/-]*)`
 	arrayIndexExprStr      = `([0-9]+|\*)`
 )
 
@@ -17,16 +18,18 @@ type parser struct {
 }
 
 func regExpFromAttributeFormat(attributeFormat string) *regexp.Regexp {
-	attributeRegExpStr := fmt.Sprintf(`((%s|\"%s\"))`, attributeFormat, attributeFormat)
-	regExpStr := fmt.Sprintf(`^(?P<parent>((%s(\[%s\])*|\[%s\])\.)*)((?P<attribute>%s)|(\[(?P<index>%s)\]))*$`,
-		attributeRegExpStr, arrayIndexExprStr, arrayIndexExprStr, attributeRegExpStr, arrayIndexExprStr)
+	regExpStr := fmt.Sprintf(`^(?P<parent>((%s|\[%s\]))*)((\.)(?P<attribute>%s)|(\[(?P<index>%s)\]))$`, attributeFormat, arrayIndexExprStr, attributeFormat, arrayIndexExprStr)
 	return regexp.MustCompile(regExpStr)
 }
 
 func (p *parser) parse(pathExpr string) *mutator {
 	match := p.regExp.FindStringSubmatch(pathExpr)
-	if match == nil && p.strict {
-		log.Fatalf("invalid path  '%v'. Path doesn't meet defined format", pathExpr)
+	if match == nil {
+		if p.strict {
+			log.Panicf("invalid path  '%v'. Path doesn't meet defined format", pathExpr)
+		} else {
+			return nil
+		}
 	}
 	subMatchMap := map[string]string{}
 	for i, name := range p.regExp.SubexpNames() {
@@ -35,23 +38,30 @@ func (p *parser) parse(pathExpr string) *mutator {
 		}
 	}
 	attr := subMatchMap["attribute"]
+	if strings.HasPrefix(attr, ".") {
+		attr = attr[1:]
+	}
 	parentExpr := subMatchMap["parent"]
+	if strings.HasSuffix(parentExpr, ".") {
+		parentExpr = parentExpr[:len(parentExpr)-1]
+	}
 	arrayIndex := subMatchMap["index"]
 	m := &mutator{
 		name: attr,
 	}
 	if arrayIndex != "" {
-
-		m.child = &mutator{
-			index: arrayIndex,
+		m.index = arrayIndex
+		var parent = &mutator{}
+		if parentExpr != "" {
+			parent = p.parse(parentExpr)
+			if parent == nil {
+				parent = &mutator{
+					name: parentExpr,
+				}
+			}
 		}
-		if parentExpr == "" {
-			m.kind = array
-			return m
-		}
-		parent := p.parse(parentExpr)
 		parent.kind = array
-		parent.child = m
+		parent.addToBottom(m)
 		return parent
 	}
 	if parentExpr != "" {
@@ -60,11 +70,9 @@ func (p *parser) parse(pathExpr string) *mutator {
 				m.name = attr[1 : len(attr)-1]
 			}
 		}
-		parent := p.parse(parentExpr[:len(parentExpr)-1])
-		// parent.kind = node
+		parent := p.parse(parentExpr)
 		parent.addToBottom(m)
 		return parent
 	}
-
 	return m
 }

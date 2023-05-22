@@ -265,6 +265,52 @@ func Test_mutator_toArray(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "The initial array is empty",
+			fields: fields{
+				index: "1",
+				child: &mutator{
+					name:  "firstname",
+					value: "Mary",
+				},
+				kind: node,
+			},
+			args: args{
+				content: []any{},
+			},
+			want: []any{
+				nil,
+				map[string]any{
+					"firstname": "Mary",
+				},
+			},
+		},
+		{
+			name: "Add a new entry into the array that contains sub arrays",
+			fields: fields{
+				index: "1",
+				child: &mutator{
+					index: "3",
+					value: "hello",
+				},
+				kind: array,
+			},
+			args: args{
+				content: []any{
+					[]any{
+						"my friend",
+					},
+				},
+			},
+			want: []any{
+				[]any{
+					"my friend",
+				},
+				[]any{
+					nil, nil, nil, "hello",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -300,7 +346,100 @@ func Test_mutator_toMap(t *testing.T) {
 		args   args
 		want   map[string]any
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Add a new entry into the array",
+			fields: fields{
+				name: "item2",
+				child: &mutator{
+					name:  "firstname",
+					value: "Mary",
+				},
+				kind: node,
+			},
+			args: args{
+				content: map[string]any{
+					"item1": map[string]any{
+						"firstname": "Jane",
+					},
+				},
+			},
+			want: map[string]any{
+				"item1": map[string]any{
+					"firstname": "Jane",
+				},
+				"item2": map[string]any{
+					"firstname": "Mary",
+				},
+			},
+		},
+		{
+			name: "Modify the value of an existing item in the map",
+			fields: fields{
+				name: "item1",
+				child: &mutator{
+					name:  "firstname",
+					value: "Mary",
+				},
+				kind: node,
+			},
+			args: args{
+				content: map[string]any{
+					"item1": map[string]any{
+						"firstname": "Jane",
+					},
+				},
+			},
+			want: map[string]any{
+				"item1": map[string]any{
+					"firstname": "Mary",
+				},
+			},
+		},
+		{
+			name: "The initial array is empty",
+			fields: fields{
+				name: "item",
+				child: &mutator{
+					name:  "firstname",
+					value: "Mary",
+				},
+				kind: node,
+			},
+			args: args{
+				content: map[string]any{},
+			},
+			want: map[string]any{
+				"item": map[string]any{
+					"firstname": "Mary",
+				},
+			},
+		},
+		{
+			name: "Add a new entry into the map that contains  arrays",
+			fields: fields{
+				name: "item2",
+				child: &mutator{
+					index: "3",
+					value: "hello",
+				},
+				kind: array,
+			},
+			args: args{
+				content: map[string]any{
+					"item1": []any{
+						"my friend",
+					},
+				},
+			},
+			want: map[string]any{
+				"item1": []any{
+					"my friend",
+				},
+				"item2": []any{
+					nil, nil, nil, "hello",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
