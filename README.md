@@ -7,7 +7,7 @@
 
 # Pathify
 
-The swiss knife to dea with the hassle of manipulate generic 
+The `swiss knife` to deal with the hassle of `unstructured data`.
 
 ## History and project status
 
@@ -88,7 +88,7 @@ func main() {
 ```
 
 **Output**
-```bash
+```yaml
 - age: 29
   firstname: Wendy
   lastname: Doe
@@ -96,9 +96,9 @@ func main() {
   firstname: JANE
   lastname: Doe
 - firstname: Cindy
-
+```
+```json
 [{"age":29,"firstname":"Wendy","lastname":"Doe"},{"age":30,"firstname":"JANE","lastname":"Doe"},{"firstname":"Cindy"}]
-
 ```
 
 ### Contributing
