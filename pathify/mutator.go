@@ -2,6 +2,7 @@ package pathify
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 )
 
@@ -25,6 +26,27 @@ type mutator struct {
 	child *mutator
 	kind  kind
 	value any
+}
+
+func (m *mutator) applyValue(in any) any {
+	val := reflect.ValueOf(m.value)
+	switch val.Kind() {
+	case reflect.Struct:
+		return nil
+	case reflect.Func:
+		x := reflect.TypeOf(m.value)
+		if x.NumIn() != 1 || x.NumOut() != 1 {
+			return nil
+		}
+		inVal := reflect.ValueOf(in)
+		if x.In(0).Kind() != inVal.Kind() {
+			return nil
+		}
+		out := val.Call([]reflect.Value{inVal})
+		return out[0].String()
+	default:
+		return m.value
+	}
 }
 
 func (m *mutator) String() string {
@@ -60,7 +82,9 @@ func (m *mutator) toMap(content map[string]any) map[string]any {
 		content = make(map[string]any)
 	}
 	if m.child == nil {
-		content[m.name] = m.value
+		if m.value != nil {
+			content[m.name] = m.applyValue(content[m.name])
+		}
 		return content
 	}
 	mt := *m.child
@@ -100,7 +124,9 @@ func (m *mutator) toArray(content []any) []any {
 		// This means that we should apply a '*'
 	}
 	if m.child == nil {
-		content[index] = m.value
+		if m.value != nil {
+			content[index] = m.applyValue(content[index])
+		}
 		return content
 	}
 	c := content[index]

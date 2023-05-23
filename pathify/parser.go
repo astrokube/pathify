@@ -18,7 +18,8 @@ type parser struct {
 }
 
 func regExpFromAttributeFormat(attributeFormat string) *regexp.Regexp {
-	regExpStr := fmt.Sprintf(`^(?P<parent>(((\.)?%s|\[%s\]))*)((\.)(?P<attribute>%s)|(\[(?P<index>%s)\]))$`, attributeFormat, arrayIndexExprStr, attributeFormat, arrayIndexExprStr)
+	regExpStr := fmt.Sprintf(`^(?P<parent>(((\.)?%s|\[%s\]))*)((\.)(?P<attribute>%s)|(\[(?P<index>%s)\]))$`,
+		attributeFormat, arrayIndexExprStr, attributeFormat, arrayIndexExprStr)
 	return regexp.MustCompile(regExpStr)
 }
 

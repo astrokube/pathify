@@ -121,10 +121,10 @@ func Test_sanitizer_sanitize(t *testing.T) {
 				strict: tt.fields.strict,
 			}
 			if tt.panicked {
-				assert.Panics(t, func() { s.sanitize(tt.args.args...) }, "The execution should end panicking")
+				assert.Panics(t, func() { s.sanitizePathValueList(tt.args.args...) }, "The execution should end panicking")
 			} else {
-				if got := s.sanitize(tt.args.args...); !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("sanitize() = %v, want %v", got, tt.want)
+				if got := s.sanitizePathValueList(tt.args.args...); !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("sanitizePathValueList() = %v, want %v", got, tt.want)
 				}
 			}
 		})

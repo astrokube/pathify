@@ -17,10 +17,11 @@ type sanitizer struct {
 	strict bool
 }
 
-func (s *sanitizer) sanitize(args ...any) pathValueList {
+func (s *sanitizer) sanitizePathValueList(args ...any) pathValueList {
 	if len(args)%2 != 0 {
 		args = append(args, emptyValue)
 	}
+	//nolint: gomnd
 	list := make(pathValueList, len(args)/2)
 	arg := 0
 	invalidPathValues := 0

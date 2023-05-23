@@ -5,26 +5,31 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/astrokube/pathify/build.yml?branch=main)](https://github.com/astrokube/pathify/actions?query=workflow%3ABuild+branch%3Amain)
 [![CodeQL](https://github.com/astrokube/pathify/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/astrokube/pathify/actions/workflows/codeql.yml)
 
-# PAthify
+# Pathify
 
-The swiss knife to create your own maps taking advanage of a JSONPath approach
+The swiss knife to dea with the hassle of manipulate generic 
 
 ## History and project status
 
-This module is still `in active development` and the API is still subject to breaking changes.
+This module is already `ready-for-production` and the [astrokube organization](https://www.github.com/astrokube) already
+take advantage of it for our internal projects.
+
+## Pathify  Highlights
+
+* **Easy integration**: It's straightforward to be integrated with your current developments. 
 
 ## Installation
 
 Use go get to retrieve the library to add it to your GOPATH workspace, or project's Go module dependencies.
 
 ```bash
-go get -u github.com/astrokube/pathifyv2
+go get -u github.com/astrokube/pathify
 ```
 
 To update the library use go get -u to retrieve the latest version of it.
 
 ```bash
-go get -u github.com/astrokube/pathifyv2
+go get -u github.com/astrokube/pathify
 ```
 
 You could specify a concrete version of this module as It's shown on the below. Replace x.y.z by the desired version.
@@ -32,15 +37,9 @@ You could specify a concrete version of this module as It's shown on the below. 
 ```bash
 module github.com/<org>/<repository>
 require ( 
-  github.com/astrokube/pathifyv2 vX.Y.Z
+  github.com/astrokube/pathify vX.Y.Z
 )
 ```
-
-## Overview of packages
-
-The library is composed by:
-
-* `package`: .....
 
 ## Getting started
 
@@ -51,6 +50,42 @@ The library is composed by:
 ### Examples
 
 A rich and growing set of examples of usage of this module can be found in folder `examples`.
+
+```go
+package main
+
+import (
+	"strings"
+
+	"github.com/astrokube/pathify"
+)
+
+var peopleArray = []any{
+	map[string]any{
+		"firstname": "John",
+		"lastname":  "Doe",
+		"age":       29,
+	},
+	map[string]any{
+		"firstname": "Jane",
+		"lastname":  "Moe",
+		"age":       30,
+	},
+}
+
+func main() {
+	p := pathify.Load[[]any](peopleArray).Set(
+		"[1].lastname", "Doe",
+		"[0].firstname", "Wendy",
+		"[2].firstname", "Cindy",
+		"[1].firstname", strings.ToUpper,
+	)
+	b, _ := p.YAML()
+	println(string(b))
+	b, _ = p.JSON()
+	println(string(b))
+}
+```
 
 
 ### Contributing

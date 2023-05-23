@@ -1,6 +1,8 @@
 package pathify
 
 import (
+	"encoding/json"
+	"gopkg.in/yaml.v3"
 	"log"
 	"reflect"
 )
@@ -8,10 +10,21 @@ import (
 type Pathifier[S Type] interface {
 	Set(pathValueList ...any) Pathifier[S]
 	Out() S
+	JSON() ([]byte, error)
+	YAML() ([]byte, error)
 }
 
 type Type interface {
 	map[string]any | []any
+}
+
+func checkValue(value any) any {
+	switch reflect.ValueOf(value).Kind() {
+	case reflect.Struct:
+		return nil
+	default:
+		return value
+	}
 }
 
 type pathifier[T Type] struct {
@@ -69,10 +82,11 @@ func WithAttributeNameFormat(attrNameFmt string) func(builder *builder) {
 }
 
 func (p *pathifier[S]) Set(args ...any) Pathifier[S] {
-	pathValueList := p.sanitizer.sanitize(args...)
+	pathValueList := p.sanitizer.sanitizePathValueList(args...)
 	for _, pathValue := range pathValueList {
+		v := checkValue(pathValue.value)
 		m := p.parser.parse(pathValue.path)
-		m.withValue(pathValue.value)
+		m.withValue(v)
 		p.mutators = append(p.mutators, *m)
 	}
 	return p
@@ -83,14 +97,26 @@ func (p *pathifier[S]) Out() S {
 	for _, m := range p.mutators {
 		switch reflect.TypeOf(content).Kind() {
 		case reflect.Array, reflect.Slice:
-			in := reflect.ValueOf(content).Interface().([]any)
-			content = reflect.ValueOf(m.child.toArray(in)).Interface().(S)
+			in, ok := reflect.ValueOf(content).Interface().([]any)
+			if ok {
+				content, _ = reflect.ValueOf(m.child.toArray(in)).Interface().(S)
+			}
 		case reflect.Map:
-			in := reflect.ValueOf(content).Interface().(map[string]any)
-			content = reflect.ValueOf(m.child.toMap(in)).Interface().(S)
+			in, ok := reflect.ValueOf(content).Interface().(map[string]any)
+			if ok {
+				content, _ = reflect.ValueOf(m.child.toMap(in)).Interface().(S)
+			}
 		default:
 			log.Fatalf("unsupporteed output type '%s'", reflect.TypeOf(content).Kind())
 		}
 	}
 	return content
+}
+
+func (p *pathifier[S]) JSON() ([]byte, error) {
+	return json.Marshal(p.Out())
+}
+
+func (p *pathifier[S]) YAML() ([]byte, error) {
+	return yaml.Marshal(p.Out())
 }
