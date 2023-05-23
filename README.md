@@ -87,6 +87,19 @@ func main() {
 }
 ```
 
+**Output**
+```bash
+- age: 29
+  firstname: Wendy
+  lastname: Doe
+- age: 30
+  firstname: JANE
+  lastname: Doe
+- firstname: Cindy
+
+[{"age":29,"firstname":"Wendy","lastname":"Doe"},{"age":30,"firstname":"JANE","lastname":"Doe"},{"firstname":"Cindy"}]
+
+```
 
 ### Contributing
 

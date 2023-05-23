@@ -2,9 +2,10 @@ package pathify
 
 import (
 	"encoding/json"
-	"gopkg.in/yaml.v3"
 	"log"
 	"reflect"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Pathifier[S Type] interface {
