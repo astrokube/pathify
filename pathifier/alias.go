@@ -7,6 +7,4 @@ const (
 	JSON = internal.JSON
 )
 
-var (
-	WithOutputFormat = internal.WithOutputFormat
-)
+var WithOutputFormat = internal.WithOutputFormat
