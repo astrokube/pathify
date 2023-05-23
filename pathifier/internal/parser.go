@@ -1,4 +1,4 @@
-package pathify
+package internal
 
 import (
 	"fmt"
@@ -8,32 +8,32 @@ import (
 )
 
 const (
-	defAttributeNameFormat = `("[A-Za-z_]+[A-Za-z0-9_./-]*"|[A-Za-z_]+[A-Za-z0-9_/-]*)`
+	DefAttributeNameFormat = `("[A-Za-z_]+[A-Za-z0-9_./-]*"|[A-Za-z_]+[A-Za-z0-9_/-]*)`
 	arrayIndexExprStr      = `([0-9]+|\*)`
 )
 
-type parser struct {
-	regExp *regexp.Regexp
-	strict bool
+type Parser struct {
+	RegExp *regexp.Regexp
+	Strict bool
 }
 
-func regExpFromAttributeFormat(attributeFormat string) *regexp.Regexp {
+func RegExpFromAttributeFormat(attributeFormat string) *regexp.Regexp {
 	regExpStr := fmt.Sprintf(`^(?P<parent>(((\.)?%s|\[%s\]))*)((\.)(?P<attribute>%s)|(\[(?P<index>%s)\]))$`,
 		attributeFormat, arrayIndexExprStr, attributeFormat, arrayIndexExprStr)
 	return regexp.MustCompile(regExpStr)
 }
 
-func (p *parser) parse(pathExpr string) *mutator {
-	match := p.regExp.FindStringSubmatch(pathExpr)
+func (p *Parser) Parse(pathExpr string) *Mutator {
+	match := p.RegExp.FindStringSubmatch(pathExpr)
 	if match == nil {
-		if p.strict {
-			log.Panicf("invalid path  '%v'. Path doesn't meet defined format", pathExpr)
+		if p.Strict {
+			log.Panicf("invalid Path  '%v'. Path doesn't meet defined format", pathExpr)
 		} else {
 			return nil
 		}
 	}
 	subMatchMap := map[string]string{}
-	for i, name := range p.regExp.SubexpNames() {
+	for i, name := range p.RegExp.SubexpNames() {
 		if i != 0 {
 			subMatchMap[name] = match[i]
 		}
@@ -47,16 +47,16 @@ func (p *parser) parse(pathExpr string) *mutator {
 		parentExpr = parentExpr[:len(parentExpr)-1]
 	}
 	arrayIndex := subMatchMap["index"]
-	m := &mutator{
+	m := &Mutator{
 		name: attr,
 	}
 	if arrayIndex != "" {
 		m.index = arrayIndex
-		parent := &mutator{}
+		parent := &Mutator{}
 		if parentExpr != "" {
-			parent = p.parse(parentExpr)
+			parent = p.Parse(parentExpr)
 			if parent == nil {
-				parent = &mutator{
+				parent = &Mutator{
 					name: parentExpr,
 				}
 			}
@@ -71,9 +71,9 @@ func (p *parser) parse(pathExpr string) *mutator {
 				m.name = attr[1 : len(attr)-1]
 			}
 		}
-		parent := p.parse(parentExpr)
+		parent := p.Parse(parentExpr)
 		if parent == nil {
-			parent = &mutator{
+			parent = &Mutator{
 				name: parentExpr,
 			}
 		}

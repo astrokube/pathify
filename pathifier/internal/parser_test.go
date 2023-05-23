@@ -1,4 +1,4 @@
-package pathify
+package internal
 
 import (
 	"regexp"
@@ -19,35 +19,35 @@ func Test_parser_parse(t *testing.T) {
 		name     string
 		fields   fields
 		args     args
-		want     *mutator
+		want     *Mutator
 		panicked bool
 	}{
 		{
-			name: "two deep level valid expression path",
+			name: "two deep level valid expression Path",
 			fields: fields{
 				strict: false,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "people[0].firstname",
 			},
-			want: &mutator{
+			want: &Mutator{
 				name: "people",
 				kind: array,
-				child: &mutator{
+				child: &Mutator{
 					index: "0",
 					kind:  node,
-					child: &mutator{
+					child: &Mutator{
 						name: "firstname",
 					},
 				},
 			},
 		},
 		{
-			name: "An invalid expression but strict mode is disabled",
+			name: "An invalid expression but Strict mode is disabled",
 			fields: fields{
 				strict: false,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "peopl\\\\e[0].firstname",
@@ -55,10 +55,10 @@ func Test_parser_parse(t *testing.T) {
 			want: nil,
 		},
 		{
-			name: "An invalid expression and strict mode is enabled",
+			name: "An invalid expression and Strict mode is enabled",
 			fields: fields{
 				strict: true,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "peopl\\\\e[0].firstname",
@@ -70,14 +70,14 @@ func Test_parser_parse(t *testing.T) {
 			name: "A simple array",
 			fields: fields{
 				strict: true,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "[0]",
 			},
-			want: &mutator{
+			want: &Mutator{
 				kind: array,
-				child: &mutator{
+				child: &Mutator{
 					index: "0",
 				},
 			},
@@ -86,23 +86,23 @@ func Test_parser_parse(t *testing.T) {
 			name: "Multiple arrays",
 			fields: fields{
 				strict: true,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "[0][1][2].name",
 			},
-			want: &mutator{
+			want: &Mutator{
 				kind: array,
-				child: &mutator{
+				child: &Mutator{
 					kind:  array,
 					index: "0",
-					child: &mutator{
+					child: &Mutator{
 						kind:  array,
 						index: "1",
-						child: &mutator{
+						child: &Mutator{
 							index: "2",
 							kind:  array,
-							child: &mutator{
+							child: &Mutator{
 								name: "name",
 							},
 						},
@@ -114,14 +114,14 @@ func Test_parser_parse(t *testing.T) {
 			name: "single array",
 			fields: fields{
 				strict: true,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "[2]",
 			},
-			want: &mutator{
+			want: &Mutator{
 				kind: array,
-				child: &mutator{
+				child: &Mutator{
 					index: "2",
 				},
 			},
@@ -130,41 +130,41 @@ func Test_parser_parse(t *testing.T) {
 			name: "Attributes contains dots ",
 			fields: fields{
 				strict: false,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "annotations.\"a.b.c\"",
 			},
-			want: &mutator{
+			want: &Mutator{
 				name: "annotations",
 				kind: node,
-				child: &mutator{
+				child: &Mutator{
 					name: "a.b.c",
 				},
 			},
 		},
 		{
-			name: "Attributes in the middle of a path contains dots ",
+			name: "Attributes in the middle of a Path contains dots ",
 			fields: fields{
 				strict: false,
-				regExp: regExpFromAttributeFormat(defAttributeNameFormat),
+				regExp: regExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
-				pathExpr: "annotations.\"a.b.c\".value[0].name",
+				pathExpr: "annotations.\"a.b.c\".Value[0].name",
 			},
-			want: &mutator{
+			want: &Mutator{
 				name: "annotations",
 				kind: node,
-				child: &mutator{
+				child: &Mutator{
 					name: "a.b.c",
 					kind: node,
-					child: &mutator{
-						name: "value",
+					child: &Mutator{
+						name: "Value",
 						kind: array,
-						child: &mutator{
+						child: &Mutator{
 							index: "0",
 							kind:  node,
-							child: &mutator{
+							child: &Mutator{
 								name: "name",
 							},
 						},
@@ -175,9 +175,9 @@ func Test_parser_parse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &parser{
-				regExp: tt.fields.regExp,
-				strict: tt.fields.strict,
+			p := &Parser{
+				RegExp: tt.fields.regExp,
+				Strict: tt.fields.strict,
 			}
 			println(tt.fields.regExp.String())
 			println(tt.args.pathExpr)
@@ -191,7 +191,7 @@ func Test_parser_parse(t *testing.T) {
 	}
 }
 
-func assertParsedElements(t *testing.T, expected *mutator, got *mutator) {
+func assertParsedElements(t *testing.T, expected *Mutator, got *Mutator) {
 	if expected == nil && got == nil {
 		return
 	}

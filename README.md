@@ -23,13 +23,13 @@ take advantage of it for our internal projects.
 Use go get to retrieve the library to add it to your GOPATH workspace, or project's Go module dependencies.
 
 ```bash
-go get -u github.com/astrokube/pathify
+go get -u github.com/astrokube/pathifier
 ```
 
 To update the library use go get -u to retrieve the latest version of it.
 
 ```bash
-go get -u github.com/astrokube/pathify
+go get -u github.com/astrokube/pathifier
 ```
 
 You could specify a concrete version of this module as It's shown on the below. Replace x.y.z by the desired version.
@@ -37,7 +37,7 @@ You could specify a concrete version of this module as It's shown on the below. 
 ```bash
 module github.com/<org>/<repository>
 require ( 
-  github.com/astrokube/pathify vX.Y.Z
+  github.com/astrokube/pathifier vX.Y.Z
 )
 ```
 

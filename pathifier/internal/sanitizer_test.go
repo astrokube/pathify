@@ -1,4 +1,4 @@
-package pathify
+package internal
 
 import (
 	"reflect"
@@ -19,7 +19,7 @@ func Test_sanitizer_sanitize(t *testing.T) {
 		fields   fields
 		args     args
 		panicked bool
-		want     pathValueList
+		want     PathValueList
 	}{
 		{
 			name: "The list of args are correctly provide, there's nothing to be sanitized",
@@ -29,7 +29,7 @@ func Test_sanitizer_sanitize(t *testing.T) {
 			args: args{
 				args: []any{"key1", true, "parent.key2", 20},
 			},
-			want: pathValueList{
+			want: PathValueList{
 				{"key1", true},
 				{"parent.key2", 20},
 			},
@@ -42,7 +42,7 @@ func Test_sanitizer_sanitize(t *testing.T) {
 			args: args{
 				args: []any{},
 			},
-			want: pathValueList{},
+			want: PathValueList{},
 		},
 		{
 			name: "The list of args is nil",
@@ -52,30 +52,30 @@ func Test_sanitizer_sanitize(t *testing.T) {
 			args: args{
 				args: nil,
 			},
-			want: pathValueList{},
+			want: PathValueList{},
 		},
 		{
-			name: "The list of args contains an even number of items, and strict mode is enabled",
+			name: "The list of args contains an even number of items, and Strict mode is enabled",
 			fields: fields{
 				strict: true,
 			},
 			args: args{
 				args: []any{"key1", "home", "key2"},
 			},
-			want: pathValueList{
+			want: PathValueList{
 				{"key1", "home"},
 				{"key2", emptyValue},
 			},
 		},
 		{
-			name: "The list of args contains an even number of items, and strict mode is disabled",
+			name: "The list of args contains an even number of items, and Strict mode is disabled",
 			fields: fields{
 				strict: false,
 			},
 			args: args{
 				args: []any{"key1", "home", "key2"},
 			},
-			want: pathValueList{
+			want: PathValueList{
 				{"key1", "home"},
 				{"key2", emptyValue},
 			},
@@ -88,7 +88,7 @@ func Test_sanitizer_sanitize(t *testing.T) {
 			args: args{
 				args: []any{20, "home", "key2"},
 			},
-			want: pathValueList{
+			want: PathValueList{
 				{"key2", emptyValue},
 			},
 		},
@@ -100,7 +100,7 @@ func Test_sanitizer_sanitize(t *testing.T) {
 			args: args{
 				args: []any{20, "home", "key2", "hello", true, 20},
 			},
-			want: pathValueList{
+			want: PathValueList{
 				{"key2", "hello"},
 			},
 		},
@@ -117,14 +117,14 @@ func Test_sanitizer_sanitize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &sanitizer{
-				strict: tt.fields.strict,
+			s := &Sanitizer{
+				Strict: tt.fields.strict,
 			}
 			if tt.panicked {
-				assert.Panics(t, func() { s.sanitizePathValueList(tt.args.args...) }, "The execution should end panicking")
+				assert.Panics(t, func() { s.SanitizePathValueList(tt.args.args...) }, "The execution should end panicking")
 			} else {
-				if got := s.sanitizePathValueList(tt.args.args...); !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("sanitizePathValueList() = %v, want %v", got, tt.want)
+				if got := s.SanitizePathValueList(tt.args.args...); !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("SanitizePathValueList() = %v, want %v", got, tt.want)
 				}
 			}
 		})

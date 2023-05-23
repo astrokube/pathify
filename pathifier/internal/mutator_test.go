@@ -1,4 +1,4 @@
-package pathify
+package internal
 
 import (
 	"errors"
@@ -42,7 +42,7 @@ func Test_ensureSizeOfArray(t *testing.T) {
 			want: []any{10, 20, 30},
 		},
 		{
-			name: "The index is a non-positive value",
+			name: "The index is a non-positive Value",
 			args: args{
 				arrayContent: []any{10, 20, 30},
 				indexStr:     "-A",
@@ -61,18 +61,18 @@ func Test_mutator_addToBottom(t *testing.T) {
 	type fields struct {
 		name  string
 		index string
-		child *mutator
+		child *Mutator
 		kind  kind
 		value any
 	}
 	type args struct {
-		child *mutator
+		child *Mutator
 	}
 	tests := []struct {
 		name     string
 		fields   fields
 		args     args
-		expected *mutator
+		expected *Mutator
 	}{
 		{
 			name: "The root doesn't have a  child",
@@ -82,14 +82,14 @@ func Test_mutator_addToBottom(t *testing.T) {
 				value: 20,
 			},
 			args: args{
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 21,
 				},
 			},
-			expected: &mutator{
+			expected: &Mutator{
 				name: "root",
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 21,
 				},
@@ -100,24 +100,24 @@ func Test_mutator_addToBottom(t *testing.T) {
 			name: "The root has a child",
 			fields: fields{
 				name: "root",
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 21,
 				},
 				value: 20,
 			},
 			args: args{
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 22,
 				},
 			},
-			expected: &mutator{
+			expected: &Mutator{
 				name: "root",
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 21,
-					child: &mutator{
+					child: &Mutator{
 						name:  "child",
 						value: 22,
 					},
@@ -129,10 +129,10 @@ func Test_mutator_addToBottom(t *testing.T) {
 			name: "The root has two levels child",
 			fields: fields{
 				name: "root",
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 21,
-					child: &mutator{
+					child: &Mutator{
 						name:  "child",
 						value: 22,
 					},
@@ -140,20 +140,20 @@ func Test_mutator_addToBottom(t *testing.T) {
 				value: 20,
 			},
 			args: args{
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 23,
 				},
 			},
-			expected: &mutator{
+			expected: &Mutator{
 				name: "root",
-				child: &mutator{
+				child: &Mutator{
 					name:  "child",
 					value: 21,
-					child: &mutator{
+					child: &Mutator{
 						name:  "child",
 						value: 22,
-						child: &mutator{
+						child: &Mutator{
 							name:  "child",
 							value: 23,
 						},
@@ -165,7 +165,7 @@ func Test_mutator_addToBottom(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mutator{
+			m := &Mutator{
 				name:  tt.fields.name,
 				index: tt.fields.index,
 				child: tt.fields.child,
@@ -200,7 +200,7 @@ func Test_mutator_toArray(t *testing.T) {
 	type fields struct {
 		name  string
 		index string
-		child *mutator
+		child *Mutator
 		kind  kind
 		value any
 	}
@@ -217,7 +217,7 @@ func Test_mutator_toArray(t *testing.T) {
 			name: "Add a new entry into the array",
 			fields: fields{
 				index: "1",
-				child: &mutator{
+				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
@@ -240,10 +240,10 @@ func Test_mutator_toArray(t *testing.T) {
 			},
 		},
 		{
-			name: "Modify the value of an existing item in the array",
+			name: "Modify the Value of an existing item in the array",
 			fields: fields{
 				index: "1",
-				child: &mutator{
+				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
@@ -269,7 +269,7 @@ func Test_mutator_toArray(t *testing.T) {
 			name: "The initial array is empty",
 			fields: fields{
 				index: "1",
-				child: &mutator{
+				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
@@ -289,7 +289,7 @@ func Test_mutator_toArray(t *testing.T) {
 			name: "Add a new entry into the array that contains sub arrays",
 			fields: fields{
 				index: "1",
-				child: &mutator{
+				child: &Mutator{
 					index: "3",
 					value: "hello",
 				},
@@ -314,7 +314,7 @@ func Test_mutator_toArray(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mutator{
+			m := &Mutator{
 				name:  tt.fields.name,
 				index: tt.fields.index,
 				child: tt.fields.child,
@@ -322,7 +322,7 @@ func Test_mutator_toArray(t *testing.T) {
 				value: tt.fields.value,
 			}
 
-			assert.Equalf(t, tt.want, m.toArray(tt.args.content), "toArray(%v)", tt.args.content)
+			assert.Equalf(t, tt.want, m.ToArray(tt.args.content), "ToArray(%v)", tt.args.content)
 		})
 	}
 }
@@ -333,7 +333,7 @@ func Test_mutator_toMap(t *testing.T) {
 		name       string
 		index      string
 		path       string
-		child      *mutator
+		child      *Mutator
 		kind       kind
 		value      any
 	}
@@ -350,7 +350,7 @@ func Test_mutator_toMap(t *testing.T) {
 			name: "Add a new entry into the array",
 			fields: fields{
 				name: "item2",
-				child: &mutator{
+				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
@@ -373,10 +373,10 @@ func Test_mutator_toMap(t *testing.T) {
 			},
 		},
 		{
-			name: "Modify the value of an existing item in the map",
+			name: "Modify the Value of an existing item in the map",
 			fields: fields{
 				name: "item1",
-				child: &mutator{
+				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
@@ -399,7 +399,7 @@ func Test_mutator_toMap(t *testing.T) {
 			name: "The initial array is empty",
 			fields: fields{
 				name: "item",
-				child: &mutator{
+				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
@@ -418,7 +418,7 @@ func Test_mutator_toMap(t *testing.T) {
 			name: "Add a new entry into the map that contains  arrays",
 			fields: fields{
 				name: "item2",
-				child: &mutator{
+				child: &Mutator{
 					index: "3",
 					value: "hello",
 				},
@@ -443,14 +443,14 @@ func Test_mutator_toMap(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mutator{
+			m := &Mutator{
 				name:  tt.fields.name,
 				index: tt.fields.index,
 				child: tt.fields.child,
 				kind:  tt.fields.kind,
 				value: tt.fields.value,
 			}
-			assert.Equalf(t, tt.want, m.toMap(tt.args.content), "toMap(%v)", tt.args.content)
+			assert.Equalf(t, tt.want, m.ToMap(tt.args.content), "ToMap(%v)", tt.args.content)
 		})
 	}
 }
@@ -461,7 +461,7 @@ func Test_mutator_withValue(t *testing.T) {
 		name       string
 		index      string
 		path       string
-		child      *mutator
+		child      *Mutator
 		kind       kind
 		value      any
 	}
@@ -474,7 +474,7 @@ func Test_mutator_withValue(t *testing.T) {
 		args   args
 	}{
 		{
-			name: "AAdd a value to the mutator which sdoesn't contain any value yet",
+			name: "AAdd a Value to the Mutator which sdoesn't contain any Value yet",
 			fields: fields{
 				value: nil,
 			},
@@ -483,7 +483,7 @@ func Test_mutator_withValue(t *testing.T) {
 			},
 		},
 		{
-			name: "AAdd a value to the mutator and overwrite its value",
+			name: "AAdd a Value to the Mutator and overwrite its Value",
 			fields: fields{
 				value: 21,
 			},
@@ -494,14 +494,14 @@ func Test_mutator_withValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mutator{
+			m := &Mutator{
 				name:  tt.fields.name,
 				index: tt.fields.index,
 				child: tt.fields.child,
 				kind:  tt.fields.kind,
 				value: tt.fields.value,
 			}
-			m.withValue(tt.args.value)
+			m.WithValue(tt.args.value)
 			assert.Equal(t, tt.args.value, m.value)
 		})
 	}

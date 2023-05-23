@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/astrokube/pathify/pathifier"
 	"strings"
 
 	"github.com/astrokube/pathify"
@@ -26,8 +27,6 @@ func main() {
 		"[2].firstname", "Cindy",
 		"[1].firstname", strings.ToUpper,
 	)
-	b, _ := p.YAML()
-	println(string(b))
-	b, _ = p.JSON()
-	println(string(b))
+	println(p.String(pathifier.WithOutputFormat(pathifier.YAML)))
+
 }

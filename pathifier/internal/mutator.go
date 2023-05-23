@@ -1,4 +1,4 @@
-package pathify
+package internal
 
 import (
 	"fmt"
@@ -20,15 +20,19 @@ func (k kind) String() string {
 	return "array"
 }
 
-type mutator struct {
+type Mutator struct {
 	name  string
 	index string
-	child *mutator
+	child *Mutator
 	kind  kind
 	value any
 }
 
-func (m *mutator) applyValue(in any) any {
+func (m *Mutator) Child() *Mutator {
+	return m.child
+}
+
+func (m *Mutator) applyValue(in any) any {
 	val := reflect.ValueOf(m.value)
 	switch val.Kind() {
 	case reflect.Struct:
@@ -49,27 +53,27 @@ func (m *mutator) applyValue(in any) any {
 	}
 }
 
-func (m *mutator) String() string {
+func (m *Mutator) String() string {
 	return m.pretty("")
 }
 
-func (m *mutator) pretty(prefix string) string {
-	out := fmt.Sprintf("name: %s index: %s kind: %v value: %v", m.name, m.index, m.kind, m.value)
+func (m *Mutator) pretty(prefix string) string {
+	out := fmt.Sprintf("name: %s index: %s kind: %v Value: %v", m.name, m.index, m.kind, m.value)
 	if m.child != nil {
 		return fmt.Sprintf("%s \n%s %s ", out, prefix, m.child.pretty(prefix+"\t"))
 	}
 	return out
 }
 
-func (m *mutator) withValue(value any) {
+func (m *Mutator) WithValue(value any) {
 	if m.child == nil {
 		m.value = value
 	} else {
-		m.child.withValue(value)
+		m.child.WithValue(value)
 	}
 }
 
-func (m *mutator) addToBottom(child *mutator) {
+func (m *Mutator) addToBottom(child *Mutator) {
 	if m.child == nil {
 		m.child = child
 	} else {
@@ -77,7 +81,7 @@ func (m *mutator) addToBottom(child *mutator) {
 	}
 }
 
-func (m *mutator) toMap(content map[string]any) map[string]any {
+func (m *Mutator) ToMap(content map[string]any) map[string]any {
 	if content == nil {
 		content = make(map[string]any)
 	}
@@ -97,7 +101,7 @@ func (m *mutator) toMap(content map[string]any) map[string]any {
 		} else {
 			childContent, _ = c.(map[string]any)
 		}
-		mt.toMap(childContent)
+		mt.ToMap(childContent)
 		content[m.name] = childContent
 	case array:
 		var childContent []any
@@ -107,13 +111,13 @@ func (m *mutator) toMap(content map[string]any) map[string]any {
 		} else {
 			childContent, _ = c.([]any)
 		}
-		content[m.name] = mt.toArray(childContent)
+		content[m.name] = mt.ToArray(childContent)
 	}
 
 	return content
 }
 
-func (m *mutator) toArray(content []any) []any {
+func (m *Mutator) ToArray(content []any) []any {
 	if content == nil {
 		content = make([]any, 0)
 	}
@@ -138,7 +142,7 @@ func (m *mutator) toArray(content []any) []any {
 		} else {
 			childContent, _ = c.([]any)
 		}
-		content[index] = m.child.toArray(childContent)
+		content[index] = m.child.ToArray(childContent)
 	case node:
 		var childContent map[string]any
 		if c == nil {
@@ -147,7 +151,7 @@ func (m *mutator) toArray(content []any) []any {
 			childContent, _ = c.(map[string]any)
 		}
 
-		content[index] = m.child.toMap(childContent)
+		content[index] = m.child.ToMap(childContent)
 	}
 	return content
 }

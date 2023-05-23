@@ -1,13 +1,13 @@
 package pathify
 
 import (
-	"github.com/astrokube/pathify/pathify"
+	"github.com/astrokube/pathify/pathifier"
 )
 
-func Load[S pathify.Type](content S, opts ...pathify.PathifyOpt) pathify.Pathifier[S] {
-	return pathify.Load[S](content, opts...)
+func Load[S pathifier.Type](content S, opts ...pathifier.PathifyOpt) pathifier.Pathifier[S] {
+	return pathifier.Load[S](content, opts...)
 }
 
-func New(opts ...pathify.PathifyOpt) pathify.Pathifier[map[string]any] {
-	return pathify.New(opts...)
+func New(opts ...pathifier.PathifyOpt) pathifier.Pathifier[map[string]any] {
+	return pathifier.New(opts...)
 }

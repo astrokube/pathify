@@ -1,18 +1,15 @@
-package pathify
+package pathifier
 
 import (
-	"encoding/json"
+	"github.com/astrokube/pathify/pathifier/internal"
 	"log"
 	"reflect"
-
-	"gopkg.in/yaml.v3"
 )
 
 type Pathifier[S Type] interface {
 	Set(pathValueList ...any) Pathifier[S]
 	Out() S
-	JSON() ([]byte, error)
-	YAML() ([]byte, error)
+	String(opts ...internal.OutputOpt) string
 }
 
 type Type interface {
@@ -29,9 +26,9 @@ func checkValue(value any) any {
 }
 
 type pathifier[T Type] struct {
-	mutators  []mutator
-	sanitizer *sanitizer
-	parser    *parser
+	mutators  []internal.Mutator
+	sanitizer *internal.Sanitizer
+	parser    *internal.Parser
 	content   T
 }
 
@@ -50,19 +47,19 @@ func New(options ...PathifyOpt) Pathifier[map[string]any] {
 func Load[T Type](content T, options ...PathifyOpt) Pathifier[T] {
 	b := &builder{
 		strictMode:  false,
-		attrNameFmt: defAttributeNameFormat,
+		attrNameFmt: internal.DefAttributeNameFormat,
 	}
 	for _, opt := range options {
 		opt(b)
 	}
 
 	p := &pathifier[T]{
-		sanitizer: &sanitizer{
-			strict: b.strictMode,
+		sanitizer: &internal.Sanitizer{
+			Strict: b.strictMode,
 		},
-		parser: &parser{
-			strict: b.strictMode,
-			regExp: regExpFromAttributeFormat(b.attrNameFmt),
+		parser: &internal.Parser{
+			Strict: b.strictMode,
+			RegExp: internal.RegExpFromAttributeFormat(b.attrNameFmt),
 		},
 		content: content,
 	}
@@ -83,11 +80,11 @@ func WithAttributeNameFormat(attrNameFmt string) func(builder *builder) {
 }
 
 func (p *pathifier[S]) Set(args ...any) Pathifier[S] {
-	pathValueList := p.sanitizer.sanitizePathValueList(args...)
+	pathValueList := p.sanitizer.SanitizePathValueList(args...)
 	for _, pathValue := range pathValueList {
-		v := checkValue(pathValue.value)
-		m := p.parser.parse(pathValue.path)
-		m.withValue(v)
+		v := checkValue(pathValue.Value)
+		m := p.parser.Parse(pathValue.Path)
+		m.WithValue(v)
 		p.mutators = append(p.mutators, *m)
 	}
 	return p
@@ -100,12 +97,12 @@ func (p *pathifier[S]) Out() S {
 		case reflect.Array, reflect.Slice:
 			in, ok := reflect.ValueOf(content).Interface().([]any)
 			if ok {
-				content, _ = reflect.ValueOf(m.child.toArray(in)).Interface().(S)
+				content, _ = reflect.ValueOf(m.Child().ToArray(in)).Interface().(S)
 			}
 		case reflect.Map:
 			in, ok := reflect.ValueOf(content).Interface().(map[string]any)
 			if ok {
-				content, _ = reflect.ValueOf(m.child.toMap(in)).Interface().(S)
+				content, _ = reflect.ValueOf(m.Child().ToMap(in)).Interface().(S)
 			}
 		default:
 			log.Fatalf("unsupporteed output type '%s'", reflect.TypeOf(content).Kind())
@@ -114,10 +111,8 @@ func (p *pathifier[S]) Out() S {
 	return content
 }
 
-func (p *pathifier[S]) JSON() ([]byte, error) {
-	return json.Marshal(p.Out())
-}
+func (p *pathifier[S]) String(opts ...internal.OutputOpt) string {
+	content := p.Out()
 
-func (p *pathifier[S]) YAML() ([]byte, error) {
-	return yaml.Marshal(p.Out())
+	return internal.NewOutput(opts...).String(content)
 }
