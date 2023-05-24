@@ -1,9 +1,10 @@
 package pathifier
 
 import (
-	"github.com/astrokube/pathify/pathifier/internal"
 	"log"
 	"reflect"
+
+	"github.com/astrokube/pathify/pathifier/internal"
 )
 
 type Pathifier[S Type] interface {

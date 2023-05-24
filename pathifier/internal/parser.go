@@ -37,7 +37,10 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 		attrMatch := p.AttributeRegExp.FindStringSubmatch(pathExpr)
 		if attrMatch != nil {
 			return &Mutator{
-				name: pathExpr,
+				kind: node,
+				child: &Mutator{
+					name: pathExpr,
+				},
 			}
 		}
 		if p.Strict {

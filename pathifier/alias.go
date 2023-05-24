@@ -7,4 +7,7 @@ const (
 	JSON = internal.JSON
 )
 
-var WithOutputFormat = internal.WithOutputFormat
+var (
+	AsJSON = internal.WithOutputFormat(JSON)
+	AsYAML = internal.WithOutputFormat(YAML)
+)
