@@ -9,6 +9,7 @@ import (
 
 type Pathifier[S Type] interface {
 	Set(pathValueList ...any) Pathifier[S]
+	SetWithPrefix(prefix string, pathValueList ...any) Pathifier[S]
 	Out() S
 	YAML() string
 	JSON() string
@@ -87,6 +88,28 @@ func (p *pathifier[S]) Set(args ...any) Pathifier[S] {
 	for _, pathValue := range pathValueList {
 		v := checkValue(pathValue.Value)
 		m := p.parser.Parse(pathValue.Path)
+		m.WithValue(v)
+		p.mutators = append(p.mutators, *m)
+	}
+	return p
+}
+
+func (p *pathifier[S]) SetWithPrefix(prefix string, args ...any) Pathifier[S] {
+	pathValueList := p.sanitizer.SanitizePathValueList(args...)
+	for _, pathValue := range pathValueList {
+		v := checkValue(pathValue.Value)
+		m := p.parser.Parse(prefix + "" + pathValue.Path)
+		m.WithValue(v)
+		p.mutators = append(p.mutators, *m)
+	}
+	return p
+}
+
+func (p *pathifier[S]) SetWithDynamicPrefix(fn func(string) string, args ...any) Pathifier[S] {
+	pathValueList := p.sanitizer.SanitizePathValueList(args...)
+	for _, pathValue := range pathValueList {
+		v := checkValue(pathValue.Value)
+		m := p.parser.Parse(fn(pathValue.Path))
 		m.WithValue(v)
 		p.mutators = append(p.mutators, *m)
 	}
