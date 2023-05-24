@@ -1,10 +1,9 @@
 package pathifier
 
 import (
+	"github.com/astrokube/pathify/pathifier/internal"
 	"log"
 	"reflect"
-
-	"github.com/astrokube/pathify/pathifier/internal"
 )
 
 type Pathifier[S Type] interface {
@@ -57,14 +56,16 @@ func Load[T Type](content T, options ...PathifyOpt) Pathifier[T] {
 	for _, opt := range options {
 		opt(b)
 	}
-
+	pathRegExp, attrRegExpr := internal.RegExpsFromAttributeFormat(b.attrNameFmt)
 	p := &pathifier[T]{
 		sanitizer: &internal.Sanitizer{
 			Strict: b.strictMode,
 		},
+
 		parser: &internal.Parser{
-			Strict: b.strictMode,
-			RegExp: internal.RegExpFromAttributeFormat(b.attrNameFmt),
+			Strict:          b.strictMode,
+			RegExp:          pathRegExp,
+			AttributeRegExp: attrRegExpr,
 		},
 		content: content,
 	}

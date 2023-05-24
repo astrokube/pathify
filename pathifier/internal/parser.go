@@ -13,8 +13,9 @@ const (
 )
 
 type Parser struct {
-	RegExp *regexp.Regexp
-	Strict bool
+	RegExp          *regexp.Regexp
+	AttributeRegExp *regexp.Regexp
+	Strict          bool
 }
 
 func RegExpFromAttributeFormat(attributeFormat string) *regexp.Regexp {
@@ -23,11 +24,24 @@ func RegExpFromAttributeFormat(attributeFormat string) *regexp.Regexp {
 	return regexp.MustCompile(regExpStr)
 }
 
+func RegExpsFromAttributeFormat(attributeFormat string) (*regexp.Regexp, *regexp.Regexp) {
+	regExpStr := fmt.Sprintf(`^(?P<parent>(((\.)?%s|\[%s\]))*)((\.)(?P<attribute>%s)|(\[(?P<index>%s)\]))$`,
+		attributeFormat, arrayIndexExprStr, attributeFormat, arrayIndexExprStr)
+
+	return regexp.MustCompile(regExpStr), regexp.MustCompile(fmt.Sprintf(`^(?P<attribute>%s)$`, attributeFormat))
+}
+
 func (p *Parser) Parse(pathExpr string) *Mutator {
 	match := p.RegExp.FindStringSubmatch(pathExpr)
 	if match == nil {
+		attrMatch := p.AttributeRegExp.FindStringSubmatch(pathExpr)
+		if attrMatch != nil {
+			return &Mutator{
+				name: pathExpr,
+			}
+		}
 		if p.Strict {
-			log.Panicf("invalid Path  '%v'. Path doesn't meet defined format", pathExpr)
+			log.Panicf("invalid Path  '%v'. Path doesn't match defined format", pathExpr)
 		} else {
 			return nil
 		}

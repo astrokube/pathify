@@ -9,7 +9,6 @@ import (
 
 func Test_parser_parse(t *testing.T) {
 	type fields struct {
-		regExp *regexp.Regexp
 		strict bool
 	}
 	type args struct {
@@ -23,10 +22,36 @@ func Test_parser_parse(t *testing.T) {
 		panicked bool
 	}{
 		{
+			name: "A single attribute name",
+			fields: fields{
+				strict: false,
+			},
+			args: args{
+				pathExpr: "fullnameOverride",
+			},
+			want: &Mutator{
+				name: "fullnameOverride",
+			},
+		},
+		{
+			name: "A single array",
+			fields: fields{
+				strict: false,
+			},
+			args: args{
+				pathExpr: "[1]",
+			},
+			want: &Mutator{
+				kind: array,
+				child: &Mutator{
+					index: "1",
+				},
+			},
+		},
+		{
 			name: "two deep level valid expression Path",
 			fields: fields{
 				strict: false,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "people[0].firstname",
@@ -47,7 +72,6 @@ func Test_parser_parse(t *testing.T) {
 			name: "An invalid expression but Strict mode is disabled",
 			fields: fields{
 				strict: false,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "peopl\\\\e[0].firstname",
@@ -58,7 +82,6 @@ func Test_parser_parse(t *testing.T) {
 			name: "An invalid expression and Strict mode is enabled",
 			fields: fields{
 				strict: true,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "peopl\\\\e[0].firstname",
@@ -70,7 +93,6 @@ func Test_parser_parse(t *testing.T) {
 			name: "A simple array",
 			fields: fields{
 				strict: true,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "[0]",
@@ -86,7 +108,6 @@ func Test_parser_parse(t *testing.T) {
 			name: "Multiple arrays",
 			fields: fields{
 				strict: true,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "[0][1][2].name",
@@ -114,7 +135,6 @@ func Test_parser_parse(t *testing.T) {
 			name: "single array",
 			fields: fields{
 				strict: true,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "[2]",
@@ -130,7 +150,6 @@ func Test_parser_parse(t *testing.T) {
 			name: "Attributes contains dots ",
 			fields: fields{
 				strict: false,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "annotations.\"a.b.c\"",
@@ -147,7 +166,6 @@ func Test_parser_parse(t *testing.T) {
 			name: "Attributes in the middle of a Path contains dots ",
 			fields: fields{
 				strict: false,
-				regExp: RegExpFromAttributeFormat(DefAttributeNameFormat),
 			},
 			args: args{
 				pathExpr: "annotations.\"a.b.c\".Value[0].name",
@@ -175,12 +193,13 @@ func Test_parser_parse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			pathRegExp, attrRegExp := RegExpsFromAttributeFormat(DefAttributeNameFormat)
 			p := &Parser{
-				RegExp: tt.fields.regExp,
-				Strict: tt.fields.strict,
+				RegExp:          pathRegExp,
+				Strict:          tt.fields.strict,
+				AttributeRegExp: attrRegExp,
 			}
-			println(tt.fields.regExp.String())
-			println(tt.args.pathExpr)
+
 			if tt.panicked {
 				assert.Panics(t, func() { p.Parse(tt.args.pathExpr) }, "The execution should end panicking")
 			} else {
