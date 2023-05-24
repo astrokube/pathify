@@ -29,4 +29,6 @@ func main() {
 		"[1].firstname", strings.ToUpper,
 	)
 	println(p.String(pathifier.WithOutputFormat(pathifier.YAML)))
+	println("---")
+	println(p.JSON())
 }

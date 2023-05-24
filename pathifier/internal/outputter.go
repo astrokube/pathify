@@ -37,12 +37,20 @@ func NewOutput(options ...OutputOpt) *Outputter {
 
 func (o *Outputter) String(content any) string {
 	switch o.Fmt {
-	case JSON:
-		b, _ := json.Marshal(content)
-		return string(b)
 	case YAML:
-		b, _ := yaml.Marshal(content)
-		return string(b)
+		return o.YAML(content)
+	case JSON:
+		return o.JSON(content)
 	}
 	return ""
+}
+
+func (o *Outputter) YAML(content any) string {
+	b, _ := yaml.Marshal(content)
+	return string(b)
+}
+
+func (o *Outputter) JSON(content any) string {
+	b, _ := json.Marshal(content)
+	return string(b)
 }

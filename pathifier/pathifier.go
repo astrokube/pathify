@@ -10,6 +10,8 @@ import (
 type Pathifier[S Type] interface {
 	Set(pathValueList ...any) Pathifier[S]
 	Out() S
+	YAML() string
+	JSON() string
 	String(opts ...internal.OutputOpt) string
 }
 
@@ -116,4 +118,12 @@ func (p *pathifier[S]) String(opts ...internal.OutputOpt) string {
 	content := p.Out()
 
 	return internal.NewOutput(opts...).String(content)
+}
+
+func (p *pathifier[S]) YAML() string {
+	return internal.NewOutput().YAML(p.Out())
+}
+
+func (p *pathifier[S]) JSON() string {
+	return internal.NewOutput().JSON(p.Out())
 }
