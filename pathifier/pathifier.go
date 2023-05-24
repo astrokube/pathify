@@ -10,6 +10,7 @@ import (
 type Pathifier[S Type] interface {
 	Set(pathValueList ...any) Pathifier[S]
 	SetWithPrefix(prefix string, pathValueList ...any) Pathifier[S]
+	SetWithDynamicPrefix(fn func(string) string, pathValueList ...any) Pathifier[S]
 	Out() S
 	YAML() string
 	JSON() string
