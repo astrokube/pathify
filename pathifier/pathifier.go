@@ -9,8 +9,7 @@ import (
 
 type Pathifier[S Type] interface {
 	Set(pathValueList ...any) Pathifier[S]
-	SetWithPrefix(prefix string, pathValueList ...any) Pathifier[S]
-	SetWithDynamicPrefix(fn func(string) string, pathValueList ...any) Pathifier[S]
+	With(opts ...SetterOpt) func(pathValueList ...any) Pathifier[S]
 	Out() S
 	YAML() string
 	JSON() string
@@ -34,6 +33,7 @@ type pathifier[T Type] struct {
 	mutators  []internal.Mutator
 	sanitizer *internal.Sanitizer
 	parser    *internal.Parser
+	setter    *internal.Setter
 	content   T
 }
 
@@ -62,7 +62,6 @@ func Load[T Type](content T, options ...PathifyOpt) Pathifier[T] {
 		sanitizer: &internal.Sanitizer{
 			Strict: b.strictMode,
 		},
-
 		parser: &internal.Parser{
 			Strict:          b.strictMode,
 			RegExp:          pathRegExp,
@@ -86,36 +85,19 @@ func WithAttributeNameFormat(attrNameFmt string) func(builder *builder) {
 	}
 }
 
+func (p *pathifier[S]) With(opts ...SetterOpt) func(args ...any) Pathifier[S] {
+	setter := internal.NewSetter(opts...)
+	return func(args ...any) Pathifier[S] {
+		pathValueList := p.sanitizer.SanitizePathValueList(args...)
+		p.mutators = append(p.mutators, setter.Set(p.parser, pathValueList)...)
+		return p
+	}
+}
+
 func (p *pathifier[S]) Set(args ...any) Pathifier[S] {
 	pathValueList := p.sanitizer.SanitizePathValueList(args...)
-	for _, pathValue := range pathValueList {
-		v := checkValue(pathValue.Value)
-		m := p.parser.Parse(pathValue.Path)
-		m.WithValue(v)
-		p.mutators = append(p.mutators, *m)
-	}
-	return p
-}
-
-func (p *pathifier[S]) SetWithPrefix(prefix string, args ...any) Pathifier[S] {
-	pathValueList := p.sanitizer.SanitizePathValueList(args...)
-	for _, pathValue := range pathValueList {
-		v := checkValue(pathValue.Value)
-		m := p.parser.Parse(prefix + "" + pathValue.Path)
-		m.WithValue(v)
-		p.mutators = append(p.mutators, *m)
-	}
-	return p
-}
-
-func (p *pathifier[S]) SetWithDynamicPrefix(fn func(string) string, args ...any) Pathifier[S] {
-	pathValueList := p.sanitizer.SanitizePathValueList(args...)
-	for _, pathValue := range pathValueList {
-		v := checkValue(pathValue.Value)
-		m := p.parser.Parse(fn(pathValue.Path))
-		m.WithValue(v)
-		p.mutators = append(p.mutators, *m)
-	}
+	setter := internal.Setter{}
+	p.mutators = append(p.mutators, setter.Set(p.parser, pathValueList)...)
 	return p
 }
 
