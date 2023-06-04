@@ -18,7 +18,7 @@ func Test_ensureSizeOfArray(t *testing.T) {
 		want []any
 	}{
 		{
-			name: "The size of the array mustn't be changed",
+			name: "The size of the Array mustn't be changed",
 			args: args{
 				arrayContent: []any{10, 20, 30},
 				indexStr:     "2",
@@ -26,7 +26,7 @@ func Test_ensureSizeOfArray(t *testing.T) {
 			want: []any{10, 20, 30},
 		},
 		{
-			name: "The size of the array must be changed",
+			name: "The size of the Array must be changed",
 			args: args{
 				arrayContent: []any{10, 20, 30},
 				indexStr:     "7",
@@ -62,7 +62,7 @@ func Test_mutator_addToBottom(t *testing.T) {
 		name  string
 		index string
 		child *Mutator
-		kind  kind
+		kind  Kind
 		value any
 	}
 	type args struct {
@@ -201,7 +201,7 @@ func Test_mutator_toArray(t *testing.T) {
 		name  string
 		index string
 		child *Mutator
-		kind  kind
+		kind  Kind
 		value any
 	}
 	type args struct {
@@ -214,14 +214,14 @@ func Test_mutator_toArray(t *testing.T) {
 		want   []any
 	}{
 		{
-			name: "Add a new entry into the array",
+			name: "Add a new entry into the Array",
 			fields: fields{
 				index: "1",
 				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
-				kind: node,
+				kind: Node,
 			},
 			args: args{
 				content: []any{
@@ -240,14 +240,14 @@ func Test_mutator_toArray(t *testing.T) {
 			},
 		},
 		{
-			name: "Modify the Value of an existing item in the array",
+			name: "Modify the Value of an existing item in the Array",
 			fields: fields{
 				index: "1",
 				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
-				kind: node,
+				kind: Node,
 			},
 			args: args{
 				content: []any{
@@ -266,14 +266,14 @@ func Test_mutator_toArray(t *testing.T) {
 			},
 		},
 		{
-			name: "The initial array is empty",
+			name: "The initial Array is empty",
 			fields: fields{
 				index: "1",
 				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
-				kind: node,
+				kind: Node,
 			},
 			args: args{
 				content: []any{},
@@ -286,14 +286,14 @@ func Test_mutator_toArray(t *testing.T) {
 			},
 		},
 		{
-			name: "Add a new entry into the array that contains sub arrays",
+			name: "Add a new entry into the Array that contains sub arrays",
 			fields: fields{
 				index: "1",
 				child: &Mutator{
 					index: "3",
 					value: "hello",
 				},
-				kind: array,
+				kind: Array,
 			},
 			args: args{
 				content: []any{
@@ -334,7 +334,7 @@ func Test_mutator_toMap(t *testing.T) {
 		index      string
 		path       string
 		child      *Mutator
-		kind       kind
+		kind       Kind
 		value      any
 	}
 	type args struct {
@@ -347,14 +347,14 @@ func Test_mutator_toMap(t *testing.T) {
 		want   map[string]any
 	}{
 		{
-			name: "Add a new entry into the array",
+			name: "Add a new entry into the Array",
 			fields: fields{
 				name: "item2",
 				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
-				kind: node,
+				kind: Node,
 			},
 			args: args{
 				content: map[string]any{
@@ -380,7 +380,7 @@ func Test_mutator_toMap(t *testing.T) {
 					name:  "firstname",
 					value: "Mary",
 				},
-				kind: node,
+				kind: Node,
 			},
 			args: args{
 				content: map[string]any{
@@ -396,14 +396,14 @@ func Test_mutator_toMap(t *testing.T) {
 			},
 		},
 		{
-			name: "The initial array is empty",
+			name: "The initial Array is empty",
 			fields: fields{
 				name: "item",
 				child: &Mutator{
 					name:  "firstname",
 					value: "Mary",
 				},
-				kind: node,
+				kind: Node,
 			},
 			args: args{
 				content: map[string]any{},
@@ -422,7 +422,7 @@ func Test_mutator_toMap(t *testing.T) {
 					index: "3",
 					value: "hello",
 				},
-				kind: array,
+				kind: Array,
 			},
 			args: args{
 				content: map[string]any{
@@ -462,7 +462,7 @@ func Test_mutator_withValue(t *testing.T) {
 		index      string
 		path       string
 		child      *Mutator
-		kind       kind
+		kind       Kind
 		value      any
 	}
 	type args struct {

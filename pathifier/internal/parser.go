@@ -37,7 +37,7 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 		attrMatch := p.AttributeRegExp.FindStringSubmatch(pathExpr)
 		if attrMatch != nil {
 			return &Mutator{
-				kind: node,
+				kind: Node,
 				child: &Mutator{
 					name: pathExpr,
 				},
@@ -78,7 +78,7 @@ func (p *Parser) Parse(pathExpr string) *Mutator {
 				}
 			}
 		}
-		parent.kind = array
+		parent.kind = Array
 		parent.addToBottom(m)
 		return parent
 	}

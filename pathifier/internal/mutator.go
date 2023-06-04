@@ -6,30 +6,34 @@ import (
 	"strconv"
 )
 
-type kind int32
+type Kind int32
 
 const (
-	node kind = iota
-	array
+	Node Kind = iota
+	Array
 )
 
-func (k kind) String() string {
-	if k == node {
-		return "node"
+func (k Kind) String() string {
+	if k == Node {
+		return "Node"
 	}
-	return "array"
+	return "Array"
 }
 
 type Mutator struct {
 	name  string
 	index string
 	child *Mutator
-	kind  kind
+	kind  Kind
 	value any
 }
 
 func (m *Mutator) Child() *Mutator {
 	return m.child
+}
+
+func (m *Mutator) Kind() Kind {
+	return m.kind
 }
 
 func (m *Mutator) applyValue(in any) any {
@@ -58,7 +62,7 @@ func (m *Mutator) String() string {
 }
 
 func (m *Mutator) pretty(prefix string) string {
-	out := fmt.Sprintf("name: %s index: %s kind: %v Value: %v", m.name, m.index, m.kind, m.value)
+	out := fmt.Sprintf("name: %s index: %s Kind: %v Value: %v", m.name, m.index, m.kind, m.value)
 	if m.child != nil {
 		return fmt.Sprintf("%s \n%s %s ", out, prefix, m.child.pretty(prefix+"\t"))
 	}
@@ -93,7 +97,7 @@ func (m *Mutator) ToMap(content map[string]any) map[string]any {
 	}
 	mt := *m.child
 	switch m.kind {
-	case node:
+	case Node:
 		var childContent map[string]any
 		c := content[m.name]
 		if c == nil {
@@ -103,7 +107,7 @@ func (m *Mutator) ToMap(content map[string]any) map[string]any {
 		}
 		mt.ToMap(childContent)
 		content[m.name] = childContent
-	case array:
+	case Array:
 		var childContent []any
 		c := content[m.name]
 		if c == nil {
@@ -135,7 +139,7 @@ func (m *Mutator) ToArray(content []any) []any {
 	}
 	c := content[index]
 	switch m.kind {
-	case array:
+	case Array:
 		var childContent []any
 		if c == nil {
 			childContent = make([]any, 0)
@@ -143,7 +147,7 @@ func (m *Mutator) ToArray(content []any) []any {
 			childContent, _ = c.([]any)
 		}
 		content[index] = m.child.ToArray(childContent)
-	case node:
+	case Node:
 		var childContent map[string]any
 		if c == nil {
 			childContent = make(map[string]any)

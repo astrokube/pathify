@@ -30,14 +30,14 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "fullnameOverride",
 			},
 			want: &Mutator{
-				kind: node,
+				kind: Node,
 				child: &Mutator{
 					name: "fullnameOverride",
 				},
 			},
 		},
 		{
-			name: "A single array",
+			name: "A single Array",
 			fields: fields{
 				strict: false,
 			},
@@ -45,7 +45,7 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "[1]",
 			},
 			want: &Mutator{
-				kind: array,
+				kind: Array,
 				child: &Mutator{
 					index: "1",
 				},
@@ -60,13 +60,13 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "people[0].firstname",
 			},
 			want: &Mutator{
-				kind: node,
+				kind: Node,
 				child: &Mutator{
 					name: "people",
-					kind: array,
+					kind: Array,
 					child: &Mutator{
 						index: "0",
-						kind:  node,
+						kind:  Node,
 						child: &Mutator{
 							name: "firstname",
 						},
@@ -96,7 +96,7 @@ func Test_parser_parse(t *testing.T) {
 			panicked: true,
 		},
 		{
-			name: "A simple array",
+			name: "A simple Array",
 			fields: fields{
 				strict: true,
 			},
@@ -104,7 +104,7 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "[0]",
 			},
 			want: &Mutator{
-				kind: array,
+				kind: Array,
 				child: &Mutator{
 					index: "0",
 				},
@@ -119,16 +119,16 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "[0][1][2].name",
 			},
 			want: &Mutator{
-				kind: array,
+				kind: Array,
 				child: &Mutator{
-					kind:  array,
+					kind:  Array,
 					index: "0",
 					child: &Mutator{
-						kind:  array,
+						kind:  Array,
 						index: "1",
 						child: &Mutator{
 							index: "2",
-							kind:  array,
+							kind:  Array,
 							child: &Mutator{
 								name: "name",
 							},
@@ -138,7 +138,7 @@ func Test_parser_parse(t *testing.T) {
 			},
 		},
 		{
-			name: "single array",
+			name: "single Array",
 			fields: fields{
 				strict: true,
 			},
@@ -146,7 +146,7 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "[2]",
 			},
 			want: &Mutator{
-				kind: array,
+				kind: Array,
 				child: &Mutator{
 					index: "2",
 				},
@@ -161,10 +161,10 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "annotations.\"a.b.c\"",
 			},
 			want: &Mutator{
-				kind: node,
+				kind: Node,
 				child: &Mutator{
 					name: "annotations",
-					kind: node,
+					kind: Node,
 					child: &Mutator{
 						name: "a.b.c",
 					},
@@ -180,19 +180,19 @@ func Test_parser_parse(t *testing.T) {
 				pathExpr: "annotations.\"a.b.c\".Value[0].name",
 			},
 			want: &Mutator{
-				kind: node,
+				kind: Node,
 				child: &Mutator{
 					name: "annotations",
-					kind: node,
+					kind: Node,
 					child: &Mutator{
 						name: "a.b.c",
-						kind: node,
+						kind: Node,
 						child: &Mutator{
 							name: "Value",
-							kind: array,
+							kind: Array,
 							child: &Mutator{
 								index: "0",
-								kind:  node,
+								kind:  Node,
 								child: &Mutator{
 									name: "name",
 								},

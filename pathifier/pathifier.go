@@ -13,11 +13,12 @@ type Pathifier[S Type] interface {
 	Out() S
 	YAML() string
 	JSON() string
+
 	String(opts ...internal.OutputOpt) string
 }
 
 type Type interface {
-	map[string]any | []any
+	map[string]any | []any | any
 }
 
 func checkValue(value any) any {
@@ -44,9 +45,9 @@ type builder struct {
 	attrNameFmt string
 }
 
-func New(options ...PathifyOpt) Pathifier[map[string]any] {
-	content := make(map[string]any)
-	return Load[map[string]any](content, options...)
+func New[S Type](options ...PathifyOpt) Pathifier[S] {
+	var content S
+	return Load[S](content, options...)
 }
 
 func Load[T Type](content T, options ...PathifyOpt) Pathifier[T] {
@@ -96,16 +97,21 @@ func (p *pathifier[S]) With(opts ...SetterOpt) func(args ...any) Pathifier[S] {
 
 func (p *pathifier[S]) Set(args ...any) Pathifier[S] {
 	pathValueList := p.sanitizer.SanitizePathValueList(args...)
-	setter := internal.Setter{}
-	p.mutators = append(p.mutators, setter.Set(p.parser, pathValueList)...)
+	p.mutators = append(p.mutators, internal.NewSetter().Set(p.parser, pathValueList)...)
 	return p
 }
 
 func (p *pathifier[S]) Out() S {
 	var content S = p.content
 	for _, m := range p.mutators {
-		switch reflect.TypeOf(content).Kind() {
-		case reflect.Array, reflect.Slice:
+		switch reflect.ValueOf(content).Kind() {
+		case reflect.Slice, reflect.Array:
+			/**
+			if len(content) == 0 {
+				in := make([]any, 0)
+				content, _ = reflect.ValueOf(m.Child().ToArray(in)).Interface().(S)
+				continue
+			}**/
 			in, ok := reflect.ValueOf(content).Interface().([]any)
 			if ok {
 				content, _ = reflect.ValueOf(m.Child().ToArray(in)).Interface().(S)
@@ -134,4 +140,15 @@ func (p *pathifier[S]) YAML() string {
 
 func (p *pathifier[S]) JSON() string {
 	return internal.NewOutput().JSON(p.Out())
+}
+
+type setter[S Type] struct {
+	s         *internal.Setter
+	pathifier *pathifier[S]
+}
+
+func (s *setter[S]) Set(args ...any) Pathifier[S] {
+	pathValueList := s.pathifier.sanitizer.SanitizePathValueList(args...)
+	s.pathifier.mutators = append(s.pathifier.mutators, internal.NewSetter().Set(s.pathifier.parser, pathValueList)...)
+	return s.pathifier
 }
